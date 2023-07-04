@@ -15,13 +15,20 @@ const app = express();
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
+// check for cors
+const cors = require("cors");
+app.use(cors({
+  domains: '*',
+  methods: "*"
+}));
+
 // importar rutas para tener orden
 const authRoutes = require("./routes/auth");
 const validateToken = require("./routes/validateToken");
 const admin = require("./routes/admin");
 
 // route middlewares para validaciónes
-app.use('/api/user',authRoutes)
+app.use('/api/user',authRoutes)  //'/auth'
 // se ejecuta la validación antes de pasar a las rutas...
 app.use('/api/admin',validateToken, admin)
 

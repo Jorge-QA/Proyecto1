@@ -63,7 +63,7 @@ router.post("/register", async (req, res) => {
   //validaciones de usuario(esquema)
   const { error } = schemaRegister.validate(req.body); //
   if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+    return res.status(400).json({ error: true, mensaje: "Valide los datos ingresados mayores a 4 caracteres y formato de correo válido" });
   }
 
   //valida si el correo ya está registrado
