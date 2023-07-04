@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+
 // database connection
 const db = mongoose.connect("mongodb://127.0.0.1:27017/proyect", {
   useNewUrlParser: true,
@@ -14,13 +15,15 @@ const app = express();
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
-// Conexión a Base de datos
-
 // importar rutas para tener orden
 const authRoutes = require("./routes/auth");
+const validateToken = require("./routes/validateToken");
+const admin = require("./routes/admin");
 
 // route middlewares para validaciónes
 app.use('/api/user',authRoutes)
+// se ejecuta la validación antes de pasar a las rutas...
+app.use('/api/admin',validateToken, admin)
 
 
 // iniciar server
