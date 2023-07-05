@@ -19,6 +19,7 @@ const schemaRegister = Joi.object({
   email: Joi.string().min(4).max(255).required().email(),
   password: Joi.string().min(4).max(1024).required(),
   rol: Joi.string().min(4).max(255).required(),
+  state: Joi.string().min(4).max(255).required(),
 });
 
 //esquema para validar login
@@ -49,7 +50,8 @@ router.post("/login", async (req, res) => {
     {
       name: user.first_name,
       id: user._id,
-      rol: user.rol
+      rol: user.rol,
+      state: user.state
     },
     process.env.TOKEN_SECRET
   );
@@ -85,6 +87,7 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     password: password,
     rol: req.body.rol,
+    state: req.body.state
   });
 
   try {

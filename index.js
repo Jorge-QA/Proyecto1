@@ -23,9 +23,9 @@ app.use(cors({
 }));
 
 // importar rutas para tener orden
-const authRoutes = require("./routes/auth");
-const validateToken = require("./routes/validateToken");
-const admin = require("./routes/admin");
+const authRoutes = require("./controllers/auth");
+const validateToken = require("./controllers/validateToken");
+const admin = require("./controllers/admin");
 
 // route middlewares para validaciónes
 app.use('/api/user',authRoutes)  //'/auth'

@@ -6,7 +6,8 @@ const user = new userSchema({
     last_name: { type: String, required: true  },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    rol: { type: String, required: true }// admin or client
+    rol: { type: String, required: true },// admin or client
+    state: { type: String, required: true }// activo o inactivo
   });
   
   module.exports = mongoose.model('User', user);

@@ -50,15 +50,12 @@
                 .getElementById("loginForm")
                 .addEventListener("submit", function (event) {
                     event.preventDefault();
-
                     const correo = document.getElementById("correo2").value;
                     const password = document.getElementById("contrasennia2").value;
-
                     const userData = {
                         email: correo,
                         password: password
                     };
-
                     const ajaxRequest = new XMLHttpRequest();
                     ajaxRequest.addEventListener("load", completedPostL);
                     ajaxRequest.addEventListener("error", errorPostL);
@@ -76,14 +73,22 @@
                     const token = response.data.token;
                     const decodedToken = jwt_decode(token);
                     const userRole = decodedToken.rol;
-                    //guardamos el token en session storage
+                    const state = decodedToken.state;
+                    //guardamos el token, nombre y id de usuario en session storage
                     sessionStorage.setItem("token", token);
+                    sessionStorage.setItem("name", decodedToken.name);
+                    sessionStorage.setItem("id", decodedToken.id);
+                    sessionStorage.setItem("state", state);
 
                     // Redireccionar según el rol del usuario
                     if (userRole === "admin") {
                         window.location.href = "admin.html";
                     } else if (userRole === "client") {
-                        window.location.href = "client.html";
+                        if (state === "activo") {
+                            window.location.href = "client.html";
+                        } else {
+                            alert("Usuario inactivo, solicite permisos de ingreso al administrador");
+                        }
                     } else {
                         alert("Rol desconocido, verifique el usuario");
                     }
@@ -109,7 +114,8 @@
                         last_name: apellido,
                         email: correo,
                         password: password,
-                        rol: "client"
+                        rol: "client",
+                        state: "inactivo"
                     };
 
                     const ajaxRequest = new XMLHttpRequest();
