@@ -1,134 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CRUD Usuarios</title>
-    <link rel="stylesheet" href="crud.css">
+    <link rel="stylesheet" href="crud.css" />
     <!-- para decodificar el token -->
     <script src="../node_modules/jwt-decode/build/jwt-decode.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="table-container">
-        <table id="usersTable">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Correo</th>
-                    <th>Estado</th>
-                    <th>Editar/Eliminar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aquí se agregarán las filas con información de los usuarios -->
-            </tbody>
-        </table>
+        <h1>Usuarios del sistema</h1>
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>Estado</th>
+            <th>Editar/Eliminar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán las filas con información de los usuarios -->
+        </tbody>
+      </table>
     </div>
     <script>
-        //Obtenemos todos los cursos para editarlos o eliminarlos
-        function getUsers() {
-            const ajaxRequest = new XMLHttpRequest();
-            ajaxRequest.addEventListener("load", completedG);
-            ajaxRequest.addEventListener("error", errorG);
-            ajaxRequest.open(
-                "GET",
-                `http://localhost:3001/api/admin/users?sort=asc`
+      //Obtenemos todos los cursos para editarlos o eliminarlos
+      function getUsers() {
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", completedG);
+        ajaxRequest.addEventListener("error", errorG);
+        ajaxRequest.open(
+          "GET",
+          `http://localhost:3001/api/admin/users?sort=asc`
+        );
+        ajaxRequest.setRequestHeader(
+          "auth-token",
+          sessionStorage.getItem("token")
+        );
+        ajaxRequest.send();
+      }
+
+      function completedG(event) {
+        const response = event.target.responseText;
+        const users = JSON.parse(response);
+
+        const tableBody = document.querySelector("#usersTable tbody");
+        tableBody.innerHTML = "";
+        // const selectCurso = document.querySelector("#selectCurso");
+        // selectCurso.innerHTML = "";
+
+        users.forEach((user) => {
+          // const option = document.createElement("option");
+          // option.value = user._id;
+          // option.text = user.first_name;
+          // selectCurso.add(option);
+
+          const row = document.createElement("tr");
+
+          const first_nameCell = document.createElement("td");
+          const first_nameInput = document.createElement("input");
+          first_nameInput.type = "text";
+          first_nameInput.value = user.first_name;
+          first_nameInput.className = "input";
+          first_nameCell.appendChild(first_nameInput);
+          row.appendChild(first_nameCell);
+
+          const last_nameCell = document.createElement("td");
+          const last_nameInput = document.createElement("input");
+          last_nameInput.type = "text";
+          last_nameInput.value = user.last_name;
+          last_nameInput.className = "input";
+          last_nameCell.appendChild(last_nameInput);
+          row.appendChild(last_nameCell);
+
+          const emailCell = document.createElement("td");
+          const emailInput = document.createElement("input");
+          emailInput.type = "text";
+          emailInput.value = user.email;
+          emailInput.className = "input";
+          emailCell.appendChild(emailInput);
+          row.appendChild(emailCell);
+
+          const stateCell = document.createElement("td");
+          const stateSelect = document.createElement("select");
+          const activo = document.createElement("option");
+          activo.value = "activo";
+          activo.textContent = "activo";
+          stateSelect.appendChild(activo);
+          const inactivo = document.createElement("option");
+          inactivo.value = "inactivo";
+          inactivo.textContent = "inactivo";
+          stateSelect.appendChild(inactivo);
+
+          stateSelect.value = user.state;
+          stateCell.appendChild(stateSelect);
+          row.appendChild(stateCell);
+
+          const editDeleteCell = document.createElement("td");
+          const editButton = document.createElement("button");
+          editButton.textContent = "Editar";
+          editButton.addEventListener("click", () => {
+            // funcion editar:
+            editUser(
+              user._id,
+              first_nameInput.value,
+              last_nameInput.value,
+              emailInput.value,
+              stateSelect.value
             );
-            ajaxRequest.setRequestHeader("auth-token", sessionStorage.getItem("token"));
-            ajaxRequest.send();
-        }
+          });
+          editDeleteCell.appendChild(editButton);
 
-        function completedG(event) {
-            const response = event.target.responseText;
-            const users = JSON.parse(response);
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Eliminar";
+          deleteButton.addEventListener("click", () => {
+            //funcion para eliminar
+            deleteUser(user._id);
+          });
+          editDeleteCell.appendChild(deleteButton);
 
-            const tableBody = document.querySelector("#usersTable tbody");
-            tableBody.innerHTML = "";
-            // const selectCurso = document.querySelector("#selectCurso");
-            // selectCurso.innerHTML = "";
+          row.appendChild(editDeleteCell);
 
-            users.forEach((user) => {
-                // const option = document.createElement("option");
-                // option.value = user._id;
-                // option.text = user.first_name;
-                // selectCurso.add(option);
+          tableBody.appendChild(row);
+        });
+      }
 
-                const row = document.createElement("tr");
+      function errorG() {
+        console.error("Error al cargar los usuarios");
+      }
+      //Carga los usuarios en la tabla al cargar la página
+      getUsers();
 
-                const first_nameCell = document.createElement("td");
-                const first_nameInput = document.createElement("input");
-                first_nameInput.type = "text";
-                first_nameInput.value = user.first_name;
-                first_nameInput.className = "input";
-                first_nameCell.appendChild(first_nameInput);
-                row.appendChild(first_nameCell);
+      //editar usuario
+      function editUser(userId, first_name, last_name, email, state) {
+        // Crear un objeto con los datos actualizados
+        const updatedUser = {
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          state: state,
+        };
 
-                const last_nameCell = document.createElement("td");
-                const last_nameInput = document.createElement("input");
-                last_nameInput.type = "text";
-                last_nameInput.value = user.last_name;
-                last_nameInput.className = "input";
-                last_nameCell.appendChild(last_nameInput);
-                row.appendChild(last_nameCell);
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", editCompleted);
+        ajaxRequest.addEventListener("error", editError);
+        ajaxRequest.open(
+          "PATCH",
+          `http://localhost:3001/api/admin/users?id=${userId}`
+        );
+        ajaxRequest.setRequestHeader(
+          "auth-token",
+          sessionStorage.getItem("token")
+        );
+        ajaxRequest.setRequestHeader("Content-Type", "application/json");
+        ajaxRequest.send(JSON.stringify(updatedUser));
+      }
 
-                const emailCell = document.createElement("td");
-                const emailInput = document.createElement("input");
-                emailInput.type = "text";
-                emailInput.value = user.email;
-                emailInput.className = "input";
-                emailCell.appendChild(emailInput);
-                row.appendChild(emailCell);
-                
-                const stateCell = document.createElement("td");
-                const stateSelect = document.createElement("select");
-                const activo = document.createElement("option");
-                activo.value = "activo";
-                activo.textContent = "activo";
-                stateSelect.appendChild(activo);
-                const inactivo = document.createElement("option");
-                inactivo.value = "inactivo";
-                inactivo.textContent = "inactivo";
-                stateSelect.appendChild(inactivo);
-                
-                stateSelect.value = user.state;
-                stateCell.appendChild(stateSelect);
-                row.appendChild(stateCell);
-
-                const editDeleteCell = document.createElement("td");
-                const editButton = document.createElement("button");
-                editButton.textContent = "Editar";
-                // editButton.addEventListener("click", () => {
-                //     // funcion editar:
-                //     editCourse(course._id, nameInput.value, creditsInput.value); // teacherInput.value
-                //     console.log("Editar curso:", course);
-                // });
-                editDeleteCell.appendChild(editButton);
-
-                const deleteButton = document.createElement("button");
-                deleteButton.textContent = "Eliminar";
-                // deleteButton.addEventListener("click", () => {
-                //     //funcion para eliminar
-                //     deleteCourse(course._id);
-                //     console.log("Eliminar curso:", course);
-                // });
-                editDeleteCell.appendChild(deleteButton);
-
-                row.appendChild(editDeleteCell);
-
-                tableBody.appendChild(row);
-            });
-        }
-
-        function errorG() {
-            console.error("Error al cargar los usuarios");
-        }
-        //Carga los usuarios en la tabla al cargar la página
+      function editCompleted(event) {
+        alert("Usuario editado con éxito!");
         getUsers();
+      }
 
+      function editError() {
+        console.error("Error al editar el Usuario");
+      }
+
+      //eliminar curso:
+      function deleteUser(userId) {
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", deletionCompleted);
+        ajaxRequest.addEventListener("error", deletionError);
+        ajaxRequest.open(
+          "DELETE",
+          `http://localhost:3001/api/admin/users?id=${userId}`
+        );
+        ajaxRequest.setRequestHeader(
+          "auth-token",
+          sessionStorage.getItem("token")
+        );
+        ajaxRequest.send();
+      }
+
+      function deletionCompleted(event) {
+        console.log("Usuario eliminado exitosamente");
+        alert("Usuario eliminado con éxito!");
+        getUsers();
+      }
+
+      function deletionError() {
+        console.error("Error al eliminar el usuario");
+      }
     </script>
-</body>
-
+  </body>
 </html>

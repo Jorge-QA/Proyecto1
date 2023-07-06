@@ -129,13 +129,10 @@
             function completedPost(event) {
                 const response = JSON.parse(event.target.responseText);
                 if (response.error) {
-                    // Mostrar una alerta con el mensaje de error recibido del servidor
                     alert(response.mensaje); // Aquí se muestra el mensaje de error del servidor
                 } else {
                     // Registro exitoso, puedes redirigir o mostrar una alerta de éxito, etc.
                     alert("Registro exitoso!");
-                    // Aquí puedes hacer redirección a otra página, por ejemplo:
-                    // window.location.href = "/ruta-de-la-pagina";
                 }
             }
 
