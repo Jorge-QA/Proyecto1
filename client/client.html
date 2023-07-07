@@ -1,198 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRUD Prompts</title>
-    <link rel="stylesheet" href="./estilos/crud.css" />
-    <!-- para decodificar el token -->
-    <!-- <script src="../node_modules/jwt-decode/build/jwt-decode.js"></script> -->
-  </head>
 
-  <body>
-    <div class="table-container">
-      <h1 id="user">Prompts de</h1>
-      <table id="promptsTable">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Input</th>
-            <th>Etiquetas</th>
-            <th>tipo</th>
-            <th>Editar/Eliminar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Aquí se agregarán las filas con información de los prompts -->
-        </tbody>
-      </table>
-    </div>
-    <script>
-      const usuario = sessionStorage.getItem("name");
-      const element = document.getElementById("user");
-      element.textContent = "Prompts de " + usuario;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD Prompts</title>
+  <link rel="stylesheet" href="./estilos/crud.css" />
+  <!-- para decodificar el token -->
+  <!-- <script src="../node_modules/jwt-decode/build/jwt-decode.js"></script> -->
+</head>
 
-      //Obtenemos todos los prompts para editarlos o eliminarlos
-      function getPrompts() {
-        const ajaxRequest = new XMLHttpRequest();
-        ajaxRequest.addEventListener("load", completedG);
-        ajaxRequest.addEventListener("error", errorG);
-        ajaxRequest.open(
-          "GET",
-          `http://localhost:3001/api/handle/prompts?sort=asc`
-        );
-        ajaxRequest.setRequestHeader(
-          "auth-token",
-          sessionStorage.getItem("token")
-        );
-        ajaxRequest.send();
-      }
+<body>
+  <form class="promptForm" id="promptForm">
+    <h2>Creación de Prompt</h2>
 
-      function completedG(event) {
-        const response = event.target.responseText;
-        const prompts = JSON.parse(response);
+    <label for="nombre">Nombre del Prompt:</label>
+    <input type="text" id="nombre" name="nombre" required />
 
-        const tableBody = document.querySelector("#promptsTable tbody");
-        tableBody.innerHTML = "";
-        // const selectCurso = document.querySelector("#selectCurso");
-        // selectCurso.innerHTML = "";
+    <label for="descripcion">Descripción del Prompt:</label>
+    <textarea id="descripcion" name="descripcion" rows="3" required></textarea>
 
-        prompts.forEach((prompt) => {
-          const row = document.createElement("tr");
+    <label for="tipo">Tipo de Prompt:</label>
+    <select id="tipo" name="tipo" required>
+      <option value="edit">edit</option>
+      <option value="image">image</option>
+    </select>
 
-          const nameCell = document.createElement("td");
-          const nameInput = document.createElement("input");
-          nameInput.type = "text";
-          nameInput.value = prompt.name;
-          nameInput.className = "input";
-          nameCell.appendChild(nameInput);
-          row.appendChild(nameCell);
+    <label for="tag1">Tag 1:</label>
+    <input type="text" id="tag1" name="tag1" required />
 
-          const last_nameCell = document.createElement("td");
-          const inputInput = document.createElement("input");
-          inputInput.type = "text";
-          inputInput.value = prompt.input;
-          inputInput.className = "input";
-          last_nameCell.appendChild(inputInput);
-          row.appendChild(last_nameCell);
+    <label for="tag2">Tag 2:</label>
+    <input type="text" id="tag2" name="tag2" />
 
-          const tagsCell = document.createElement("td");
-          const tagsInput = document.createElement("input");
-          tagsInput.type = "text";
-          tagsInput.value = prompt.tags;
-          tagsInput.className = "input";
-          tagsCell.appendChild(tagsInput);
-          row.appendChild(tagsCell);
+    <label for="tag3">Tag 3:</label>
+    <input type="text" id="tag3" name="tag3" />
 
-          const typeCell = document.createElement("td");
-          const typeSelect = document.createElement("select");
-          const edit = document.createElement("option");
-          edit.value = "edit";
-          edit.textContent = "edit";
-          typeSelect.appendChild(edit);
-          const image = document.createElement("option");
-          image.value = "image";
-          image.textContent = "image";
-          typeSelect.appendChild(image);
+    <label for="tag4">Tag 4:</label>
+    <input type="text" id="tag4" name="tag4" />
+    <br />
 
-          typeSelect.value = prompt.type;
-          typeCell.appendChild(typeSelect);
-          row.appendChild(typeCell);
+    <button type="submit">Enviar</button>
+  </form>
+  <br />
+  <br />
 
-          const editDeleteCell = document.createElement("td");
-          const editButton = document.createElement("button");
-          editButton.textContent = "Editar";
-          editButton.addEventListener("click", () => {
-            // funcion editar:
-            editPrompt(
-              prompt._id,
-              nameInput.value,
-              inputInput.value,
-              tagsInput.value,
-              typeSelect.value
-            );
-          });
-          editDeleteCell.appendChild(editButton);
+  <div class="table-container">
+    <h1 id="user"></h1>
+    <table id="promptsTable">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Input</th>
+          <th>Etiquetas</th>
+          <th>Tipo</th>
+          <th>Editar/Eliminar/Ejecutar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aquí se agregarán las filas con información de los prompts -->
+      </tbody>
+    </table>
+  </div>
+  <br />
+  <br />
+  <script>
+    const usuario = sessionStorage.getItem("name");
+    const element = document.getElementById("user");
+    element.textContent = "Prompts de " + usuario;
 
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Eliminar";
-          deleteButton.addEventListener("click", () => {
-            //funcion para eliminar
-            deletePrompt(prompt._id);
-          });
-          editDeleteCell.appendChild(deleteButton);
+    //proceso para la creación del prompt
+    document
+      .getElementById("promptForm")
+      .addEventListener("submit", function (event) {
+        event.preventDefault();
 
-          row.appendChild(editDeleteCell);
+        const name = document.getElementById("nombre").value;
+        const descripcion = document.getElementById("descripcion").value;
+        const tipo = document.getElementById("tipo").value;
+        const tag1 = document.getElementById("tag1").value;
+        const tag2 = document.getElementById("tag2").value;
+        const tag3 = document.getElementById("tag3").value;
+        const tag4 = document.getElementById("tag4").value;
 
-          tableBody.appendChild(row);
-        });
-      }
+        //Validación de contenido de las etiquetas:
+        let tagsConcatenados = "";
+        if (tag1) {
+          tagsConcatenados += tag1;
+        }
+        if (tag2) {
+          if (tagsConcatenados !== "") {
+            tagsConcatenados += ",";
+          }
+          tagsConcatenados += tag2;
+        }
+        if (tag3) {
+          if (tagsConcatenados !== "") {
+            tagsConcatenados += ",";
+          }
+          tagsConcatenados += tag3;
+        }
+        if (tag4) {
+          if (tagsConcatenados !== "") {
+            tagsConcatenados += ",";
+          }
+          tagsConcatenados += tag4;
+        }
 
-      function errorG() {
-        console.error("Error al cargar los prompts");
-      }
-      //Carga los prompts en la tabla al cargar la página
-      getPrompts();
-
-      //editar prompt
-      function editPrompt(promptId, name, input, tags, type) {
-        // Crear un objeto con los datos actualizados
-        const updatedPrompt = {
+        const promptData = {
           name: name,
-          input: input,
-          tags: tags,
-          type: type,
+          type: tipo,
+          tags: tagsConcatenados,
+          input: descripcion,
+          user: sessionStorage.getItem("id"),
         };
 
         const ajaxRequest = new XMLHttpRequest();
-        ajaxRequest.addEventListener("load", editCompleted);
-        ajaxRequest.addEventListener("error", editError);
-        ajaxRequest.open(
-          "PATCH",
-          `http://localhost:3001/api/handle/prompts?id=${promptId}`
-        );
-        ajaxRequest.setRequestHeader(
-          "auth-token",
-          sessionStorage.getItem("token")
-        );
+        ajaxRequest.addEventListener("load", completedPost);
+        ajaxRequest.addEventListener("error", errorPost);
+        ajaxRequest.open("POST", "http://localhost:3001/api/handle/prompts");
         ajaxRequest.setRequestHeader("Content-Type", "application/json");
-        ajaxRequest.send(JSON.stringify(updatedPrompt));
-      }
-
-      function editCompleted(event) {
-        alert("Prompt editado con éxito!");
-        getPrompts();
-      }
-
-      function editError() {
-        console.error("Error al editar el Prompt");
-      }
-
-      //eliminar prompt:
-      function deletePrompt(promptId) {
-        const ajaxRequest = new XMLHttpRequest();
-        ajaxRequest.addEventListener("load", deletionCompleted);
-        ajaxRequest.addEventListener("error", deletionError);
-        ajaxRequest.open(
-          "DELETE",
-          `http://localhost:3001/api/handle/prompts?id=${promptId}`
-        );
         ajaxRequest.setRequestHeader(
           "auth-token",
           sessionStorage.getItem("token")
         );
-        ajaxRequest.send();
-      }
+        ajaxRequest.send(JSON.stringify(promptData));
+      });
 
-      function deletionCompleted(event) {
-        console.log("Prompt eliminado exitosamente");
-        alert("Prompt eliminado con éxito!");
+    function completedPost(event) {
+      const response = JSON.parse(event.target.responseText);
+      if (response.error) {
+        alert(response.mensaje); // Aquí se muestra el mensaje de error del servidor
+      } else {
+        // Creación exitosa de prompt
+        alert("Prompt creado con exito!");
         getPrompts();
+        document.getElementById("promptForm").reset();
       }
+    }
 
-      function deletionError() {
-        console.error("Error al eliminar el prompt");
-      }
-    </script>
-  </body>
+    function errorPost() {
+      alert(
+        "Hubo un error al procesar la solicitud. Por favor, inténtalo nuevamente."
+      );
+    }
+
+    //Obtenemos todos los prompts para editarlos o eliminarlos
+    function getPrompts() {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", completedG);
+      ajaxRequest.addEventListener("error", errorG);
+      ajaxRequest.open(
+        "GET",
+        `http://localhost:3001/api/handle/prompts?sort=asc`
+      );
+      ajaxRequest.setRequestHeader(
+        "auth-token",
+        sessionStorage.getItem("token")
+      );
+      ajaxRequest.send();
+    }
+
+    function completedG(event) {
+      const response = event.target.responseText;
+      const prompts = JSON.parse(response);
+
+      const tableBody = document.querySelector("#promptsTable tbody");
+      tableBody.innerHTML = "";
+      // const selectCurso = document.querySelector("#selectCurso");
+      // selectCurso.innerHTML = "";
+
+      prompts.forEach((prompt) => {
+        const row = document.createElement("tr");
+
+        const nameCell = document.createElement("td");
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = prompt.name;
+        nameInput.className = "input";
+        nameCell.appendChild(nameInput);
+        row.appendChild(nameCell);
+
+        const last_nameCell = document.createElement("td");
+        const inputInput = document.createElement("textarea");
+        inputInput.value = prompt.input;
+        inputInput.className = "input";
+        last_nameCell.appendChild(inputInput);
+        row.appendChild(last_nameCell);
+
+        const tagsCell = document.createElement("td");
+        const tagsInput = document.createElement("input");
+        tagsInput.type = "text";
+        tagsInput.value = prompt.tags;
+        tagsInput.className = "input";
+        tagsCell.appendChild(tagsInput);
+        row.appendChild(tagsCell);
+
+        const typeCell = document.createElement("td");
+        const typeSelect = document.createElement("select");
+        const edit = document.createElement("option");
+        edit.value = "edit";
+        edit.textContent = "edit";
+        typeSelect.appendChild(edit);
+        const image = document.createElement("option");
+        image.value = "image";
+        image.textContent = "image";
+        typeSelect.appendChild(image);
+
+        typeSelect.value = prompt.type;
+        typeCell.appendChild(typeSelect);
+        row.appendChild(typeCell);
+
+        const editDeleteCell = document.createElement("td");
+        const editButton = document.createElement("button");
+        editButton.textContent = "Editar";
+        editButton.className = "editar-btn";
+        editButton.addEventListener("click", () => {
+          // funcion editar:
+          editPrompt(
+            prompt._id,
+            nameInput.value,
+            inputInput.value,
+            tagsInput.value,
+            typeSelect.value
+          );
+        });
+        editDeleteCell.appendChild(editButton);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Eliminar";
+        deleteButton.className = "eliminar-btn";
+        deleteButton.addEventListener("click", () => {
+          //funcion para eliminar
+          deletePrompt(prompt._id);
+        });
+        editDeleteCell.appendChild(deleteButton);
+
+        const executeButton = document.createElement("button");
+        executeButton.textContent = "Ejecutar";
+        executeButton.className = "execute-btn";
+        executeButton.addEventListener("click", () => {
+          //funcion para ejecutar api de OpenAI
+          executePrompt(prompt._id);
+        });
+        editDeleteCell.appendChild(executeButton);
+
+        row.appendChild(editDeleteCell);
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    function errorG() {
+      console.error("Error al cargar los prompts");
+    }
+    //Carga los prompts en la tabla al cargar la página
+    getPrompts();
+
+    //editar prompt
+    function editPrompt(promptId, name, input, tags, type) {
+      // Crear un objeto con los datos actualizados
+      const updatedPrompt = {
+        name: name,
+        input: input,
+        tags: tags,
+        type: type,
+      };
+
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", editCompleted);
+      ajaxRequest.addEventListener("error", editError);
+      ajaxRequest.open(
+        "PATCH",
+        `http://localhost:3001/api/handle/prompts?id=${promptId}`
+      );
+      ajaxRequest.setRequestHeader(
+        "auth-token",
+        sessionStorage.getItem("token")
+      );
+      ajaxRequest.setRequestHeader("Content-Type", "application/json");
+      ajaxRequest.send(JSON.stringify(updatedPrompt));
+    }
+
+    function editCompleted(event) {
+      alert("Prompt editado con éxito!");
+      getPrompts();
+    }
+
+    function editError() {
+      console.error("Error al editar el Prompt");
+    }
+
+    //eliminar prompt:
+    function deletePrompt(promptId) {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", deletionCompleted);
+      ajaxRequest.addEventListener("error", deletionError);
+      ajaxRequest.open(
+        "DELETE",
+        `http://localhost:3001/api/handle/prompts?id=${promptId}`
+      );
+      ajaxRequest.setRequestHeader(
+        "auth-token",
+        sessionStorage.getItem("token")
+      );
+      ajaxRequest.send();
+    }
+
+    function deletionCompleted(event) {
+      console.log("Prompt eliminado exitosamente");
+      alert("Prompt eliminado con éxito!");
+      getPrompts();
+    }
+
+    function deletionError() {
+      console.error("Error al eliminar el prompt");
+    }
+
+    //Ejecutar prompt:
+    function executePrompt(promptId) {
+      // const ajaxRequest = new XMLHttpRequest();
+      // ajaxRequest.addEventListener("load", deletionCompleted);
+      // ajaxRequest.addEventListener("error", deletionError);
+      // ajaxRequest.open(
+      //   "DELETE",
+      //   `http://localhost:3001/api/handle/prompts?id=${promptId}`
+      // );
+      // ajaxRequest.setRequestHeader(
+      //   "auth-token",
+      //   sessionStorage.getItem("token")
+      // );
+      // ajaxRequest.send();
+      alert("Prompt id#" + promptId + " Sin ejecutar por que no se usar el api de OpenAI");
+    }
+
+    function deletionCompleted(event) {
+      console.log("Prompt ejecutado exitosamente");
+      alert("Prompt ejecutado con éxito!");
+    }
+
+    function deletionError() {
+      console.error("Error al ejecutar el prompt");
+    }
+  </script>
+</body>
+
 </html>

@@ -27,7 +27,7 @@ router.post("/prompts", async (req, res) => {
       .status(400)
       .json({
         error: true,
-        mensaje: "Valide los datos ingresados mayores a 2 caracteres",
+        mensaje: "Valide los datos ingresados mayores a 2 caracteres y al menos una etiqueta",
       });
   }
 

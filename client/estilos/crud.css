@@ -6,16 +6,67 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #0e7b58;
+    background-color: #003530;
+}
+
+.promptForm {
+    width: 25rem;
+    margin: 20px;
+    padding: 20px;
+    background-color: #039188;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.promptForm h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.promptForm label {
+    display: block;
+    margin-top: 5px;
+    color: #333;
+}
+
+.promptForm input[type="text"],
+.promptForm textarea,
+.promptForm select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+.promptForm button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+}
+
+.promptForm button:hover {
+    background-color: #45a049;
 }
 
 .table-container {
-    width: 80%;
-    max-width: 1000px;
-    background-color: #fff;
+    width: 60%;
+    max-width: 1200px;
+    background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     border-radius: 5px;
+    margin: 20px;
 }
 
 table {
@@ -26,20 +77,20 @@ table {
 th, td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 3px solid #000000;
 }
 
 thead th {
-    background-color: #f2f2f2;
+    background-color: #03a194;
 }
 
 tr:hover {
-    background-color: #f5f5f5;
+    background-color: #abf3b2;
 }
 
 /* Estilos para los botones de Editar y Eliminar */
-.editar-btn, .eliminar-btn {
-    padding: 8px 12px;
+.editar-btn, .eliminar-btn, .execute-btn {
+    padding: 8px 5px;
     cursor: pointer;
     border: none;
     border-radius: 4px;
@@ -53,6 +104,13 @@ tr:hover {
 .eliminar-btn {
     background-color: #dc3545;
     margin-left: 5px;
+}
+
+.execute-btn {
+    background-color: #35dc59;
+    margin-top: 5px;
+    margin-left: 5px;
+    
 }
 
 /* Estilos responsivos */
