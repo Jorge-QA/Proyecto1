@@ -103,6 +103,7 @@
           const editDeleteCell = document.createElement("td");
           const editButton = document.createElement("button");
           editButton.textContent = "Editar";
+          editButton.className = "editar-btn";
           editButton.addEventListener("click", () => {
             // funcion editar:
             editUser(
@@ -117,6 +118,7 @@
 
           const deleteButton = document.createElement("button");
           deleteButton.textContent = "Eliminar";
+          deleteButton.className = "eliminar-btn";
           deleteButton.addEventListener("click", () => {
             //funcion para eliminar
             deleteUser(user._id);

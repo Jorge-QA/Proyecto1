@@ -39,7 +39,7 @@
     <input type="text" id="tag4" name="tag4" />
     <br />
 
-    <button type="submit">Enviar</button>
+    <button type="submit">Crear</button>
   </form>
   <br />
   <br />
@@ -151,7 +151,7 @@
       ajaxRequest.addEventListener("error", errorG);
       ajaxRequest.open(
         "GET",
-        `http://localhost:3001/api/handle/prompts?sort=asc`
+        `http://localhost:3001/api/handle/prompts?user=${sessionStorage.getItem("id")}`
       );
       ajaxRequest.setRequestHeader(
         "auth-token",
@@ -333,14 +333,14 @@
       alert("Prompt id#" + promptId + " Sin ejecutar por que no se usar el api de OpenAI");
     }
 
-    function deletionCompleted(event) {
-      console.log("Prompt ejecutado exitosamente");
-      alert("Prompt ejecutado con éxito!");
-    }
+    // function deletionCompleted(event) {
+    //   console.log("Prompt ejecutado exitosamente");
+    //   alert("Prompt ejecutado con éxito!");
+    // }
 
-    function deletionError() {
-      console.error("Error al ejecutar el prompt");
-    }
+    // function deletionError() {
+    //   console.error("Error al ejecutar el prompt");
+    // }
   </script>
 </body>
 

@@ -15,7 +15,6 @@ const schemaPrompt = Joi.object({
   tags: Joi.string().min(2).max(255).required(),
   input: Joi.string().min(2).max(255).required(),
   user: Joi.string().min(2).max(255),
-  
 });
 
 //Guardar un prompt
@@ -23,12 +22,11 @@ router.post("/prompts", async (req, res) => {
   //validaciones de prompt(esquema)
   const { error } = schemaPrompt.validate(req.body); //
   if (error) {
-    return res
-      .status(400)
-      .json({
-        error: true,
-        mensaje: "Valide los datos ingresados mayores a 2 caracteres y al menos una etiqueta",
-      });
+    return res.status(400).json({
+      error: true,
+      mensaje:
+        "Valide los datos ingresados mayores a 2 caracteres y al menos una etiqueta",
+    });
   }
 
   const prompt = new Prompt({
@@ -36,7 +34,7 @@ router.post("/prompts", async (req, res) => {
     type: req.body.type,
     tags: req.body.tags,
     input: req.body.input,
-    user: req.body.user
+    user: req.body.user,
   });
 
   try {
@@ -52,36 +50,15 @@ router.post("/prompts", async (req, res) => {
 // obtener info de prompts
 router.get("/prompts", (req, res) => {
   // if an specific prompt is required
-  if (req.query && req.query.name) {
-    // if (req.query && req.query.id) {  (traerlo por nombre)
-    Prompt.findOne({ name: req.query.name }) //
-      .then((prompt) => {
-        res.json(prompt);
+  if (req.query && req.query.user) {
+    Prompt.find({ user: req.query.user }) // Filtrar por el usuario específico
+      .then((prompts) => {
+        res.json(prompts);
       })
       .catch((err) => {
         res.status(404);
-        console.log("error while queryting the prompt", err);
-        res.json({ error: "Prompt doesnt exist" });
-      });
-  } else if (req.query.sort === "asc") {
-    Prompt.find()
-      .then((prompts) => {
-        prompts = prompts.sort((a, b) => a.name.localeCompare(b.name));
-        res.json(prompts);
-      })
-      .catch((err) => {
-        res.status(422);
-        res.json({ error: err });
-      });
-  } else if (req.query.sort === "desc") {
-    Prompt.find()
-      .then((prompts) => {
-        prompts = prompts.sort((a, b) => b.name.localeCompare(a.name));
-        res.json(prompts);
-      })
-      .catch((err) => {
-        res.status(422);
-        res.json({ error: err });
+        console.log("Error al consultar los prompts del usuario", err);
+        res.json({ error: "El prompt no existe" });
       });
   } else {
     // get all prompts

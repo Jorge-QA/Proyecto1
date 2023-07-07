@@ -8,7 +8,7 @@ const prompt = new promptSchema({
   input: { type: String, required: true }, //
   user: {
     type: mongoose.ObjectId,
-    ref: "User",
+    ref: "User",required: true
   },
 });
 
