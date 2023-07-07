@@ -14,6 +14,8 @@ const schemaPrompt = Joi.object({
   type: Joi.string().min(2).max(255).required(), //edit/image
   tags: Joi.string().min(2).max(255).required(),
   input: Joi.string().min(2).max(255).required(),
+  user: Joi.string().min(2).max(255),
+  
 });
 
 //Guardar un prompt
@@ -34,6 +36,7 @@ router.post("/prompts", async (req, res) => {
     type: req.body.type,
     tags: req.body.tags,
     input: req.body.input,
+    user: req.body.user
   });
 
   try {
