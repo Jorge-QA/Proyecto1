@@ -22,15 +22,20 @@ app.use(cors({
   methods: "*"
 }));
 
-// importar rutas para tener orden
+// importar rutas
 const authRoutes = require("./controllers/auth");
 const validateToken = require("./controllers/validateToken");
 const admin = require("./controllers/admin");
+const prompts =require("./controllers/prompt")
 
 // route middlewares para validaciónes
-app.use('/api/user',authRoutes)  //'/auth'
+//ruta de validacciones de login y registro de usuario
+app.use('/api/session',authRoutes)
 // se ejecuta la validación antes de pasar a las rutas...
-app.use('/api/admin',validateToken, admin)
+////ruta de obtención y mandejo de información de usuarios
+app.use('/api/admin',validateToken, admin) //
+////ruta de obtención y mandejo de información de prompts
+app.use('/api/handle',validateToken, prompts)
 
 
 // iniciar server

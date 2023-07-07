@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Registro</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="./estilos/estilos.css">
     <!-- para decodificar el token -->
     <script src="../node_modules/jwt-decode/build/jwt-decode.js"></script>
 </head>
@@ -59,7 +59,7 @@
                     const ajaxRequest = new XMLHttpRequest();
                     ajaxRequest.addEventListener("load", completedPostL);
                     ajaxRequest.addEventListener("error", errorPostL);
-                    ajaxRequest.open("POST", "http://localhost:3001/api/user/login");
+                    ajaxRequest.open("POST", "http://localhost:3001/api/session/login");
                     ajaxRequest.setRequestHeader("Content-Type", "application/json");
                     ajaxRequest.send(JSON.stringify(userData));
                 });
@@ -121,7 +121,7 @@
                     const ajaxRequest = new XMLHttpRequest();
                     ajaxRequest.addEventListener("load", completedPost);
                     ajaxRequest.addEventListener("error", errorPost);
-                    ajaxRequest.open("POST", "http://localhost:3001/api/user/register");
+                    ajaxRequest.open("POST", "http://localhost:3001/api/session/register");
                     ajaxRequest.setRequestHeader("Content-Type", "application/json");
                     ajaxRequest.send(JSON.stringify(userData));
                 });
