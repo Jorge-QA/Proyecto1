@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Registro</title>
+    <title>Login</title>
     <link rel="stylesheet" href="./estilos/estilos.css">
     <!-- para decodificar el token -->
     <script src="../node_modules/jwt-decode/build/jwt-decode.js"></script>
@@ -13,24 +13,6 @@
 <body>
 
     <body>
-        <div class="container">
-            <h1>Formulario de Registro</h1>
-            <form id=registerForm>
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required>
-
-                <label for="apellido">Apellido:</label>
-                <input type="text" id="apellido" name="apellido" required>
-
-                <label for="correo">Correo Electrónico:</label>
-                <input type="email" id="correo1" name="correo1" required>
-
-                <label for="contrasenia">Contraseña:</label>
-                <input type="password" id="contrasennia1" name="contrasenia1" required>
-
-                <button type="submit">Registrarse</button>
-            </form>
-        </div>
         <div class="container">
             <h1>Inicio de Sesión</h1>
             <form id=loginForm>
@@ -41,6 +23,8 @@
                 <input type="password" id="contrasennia2" name="contrasennia2" required>
 
                 <button type="submit">Iniciar Sesión</button>
+                <br>
+                <a href="register.html">No estás registrado?</a>
             </form>
         </div>
 
@@ -82,9 +66,11 @@
 
                     // Redireccionar según el rol del usuario
                     if (userRole === "admin") {
+                        document.getElementById("loginForm").reset();
                         window.location.href = "admin.html";
                     } else if (userRole === "client") {
                         if (state === "activo") {
+                            document.getElementById("loginForm").reset();
                             window.location.href = "client.html";
                         } else {
                             alert("Usuario inactivo, solicite permisos de ingreso al administrador");
@@ -98,47 +84,11 @@
             function errorPostL() {
                 alert("Hubo un error al procesar la solicitud. Por favor, inténtalo nuevamente.");
             }
-            //proceso para el registro
-            document
-                .getElementById("registerForm")
-                .addEventListener("submit", function (event) {
-                    event.preventDefault();
-
-                    const name = document.getElementById("nombre").value;
-                    const apellido = document.getElementById("apellido").value;
-                    const correo = document.getElementById("correo1").value;
-                    const password = document.getElementById("contrasennia1").value;
-
-                    const userData = {
-                        first_name: name,
-                        last_name: apellido,
-                        email: correo,
-                        password: password,
-                        rol: "client",
-                        state: "inactivo"
-                    };
-
-                    const ajaxRequest = new XMLHttpRequest();
-                    ajaxRequest.addEventListener("load", completedPost);
-                    ajaxRequest.addEventListener("error", errorPost);
-                    ajaxRequest.open("POST", "http://localhost:3001/api/session/register");
-                    ajaxRequest.setRequestHeader("Content-Type", "application/json");
-                    ajaxRequest.send(JSON.stringify(userData));
-                });
-
-            function completedPost(event) {
-                const response = JSON.parse(event.target.responseText);
-                if (response.error) {
-                    alert(response.mensaje); // Aquí se muestra el mensaje de error del servidor
-                } else {
-                    // Registro exitoso, puedes redirigir o mostrar una alerta de éxito, etc.
-                    alert("Registro exitoso!");
-                }
-            }
-
-            function errorPost() {
-                alert("Hubo un error al procesar la solicitud. Por favor, inténtalo nuevamente.");
-            }
+            //evita que el usuario retroceda o avance con el navegador entre páginas
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+            };
         </script>
     </body>
 
