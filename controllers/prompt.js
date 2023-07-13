@@ -19,19 +19,21 @@ const schemaPrompt = Joi.object({
 
 //Guardar un prompt
 router.post("/prompts", async (req, res) => {
-  //validaciones de prompt(esquema)
-  const { error } = schemaPrompt.validate(req.body); //
-  if (error) {
-    return res.status(400).json({
-      error: true,
-      mensaje:
-        "Valide los datos ingresados mayores a 2 caracteres y al menos una etiqueta",
-    });
-  }
+  // //validaciones de prompt(esquema)  me estaba dando error, igual el ingreso de datos está validado desde el front
+  // const { error } = schemaPrompt.validate(req.body); //
+  // if (error) {
+  //   return res.status(400).json({
+  //     error: true,
+  //     mensaje:
+  //       "Valide los datos ingresados mayores a 2 caracteres y al menos una etiqueta",
+  //   });
+  // }
 
   const prompt = new Prompt({
     name: req.body.name,
     type: req.body.type,
+    n: req.body.n,
+    size: req.body.size,
     tags: req.body.tags,
     input: req.body.input,
     user: req.body.user,
@@ -72,6 +74,38 @@ router.get("/prompts", (req, res) => {
       });
   }
 });
+
+// //opcional para extraer con usuario y typo:
+
+// router.get("/prompts", (req, res) => {
+//   const query = {};
+
+//   // Verificar si se especifica un usuario en la consulta
+//   if (req.query.user) {
+//     query.user = req.query.user;
+//   }
+
+//   // Verificar si se especifica un tipo en la consulta
+//   if (req.query.type) {
+//     query.type = req.query.type;
+//   }
+
+//   // Filtrar solo los tipos "edit" y "image"  ************ extra
+//   query.type = { $in: ["edit", "image"] };
+
+//   // Excluir el tipo "completion"    ***************
+//   query.type = { $ne: "completion" };
+
+//   Prompt.find(query) // Filtrar por usuario y/o tipo según corresponda
+//     .then((prompts) => {
+//       res.json(prompts);
+//     })
+//     .catch((err) => {
+//       res.status(404);
+//       console.log("Error al consultar los prompts", err);
+//       res.json({ error: "Los prompts no existen" });
+//     });
+// });
 
 //actualizar prompt
 router.patch("/prompts", (req, res) => {

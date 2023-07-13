@@ -14,7 +14,8 @@
       <button
         onclick="window.location.href = 'index.html';"
         class="btn-cerrar"
-        id="cerrarSesion">
+        id="cerrarSesion"
+      >
         Cerrar sesión
       </button>
     </div>
@@ -38,6 +39,29 @@
         <option value="image">image</option>
         <option value="completion">completion</option>
       </select>
+
+      <div id="imageOptions" style="display: none">
+        <label for="cantidadImagenes">Cantidad de imágenes:</label>
+        <select id="cantidadImagenes" name="cantidadImagenes">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+
+        <label for="tamaño">Tamaño de imagen:</label>
+        <select id="tamaño" name="tamaño">
+          <option value="256x256">256x256</option>
+          <option value="512x512">512x512</option>
+          <option value="1024x1024">1024x1024</option>
+        </select>
+      </div>
 
       <label for="tag1">Tag 1:</label>
       <input type="text" id="tag1" name="tag1" required />
@@ -81,6 +105,25 @@
       const element = document.getElementById("user");
       element.textContent = "Prompts de " + usuario;
 
+      //Acá modificamos el form en caso de elegir tipo image:
+
+      // Capturar los elementos select y el div de opciones de imagen
+      const selectTipo = document.getElementById("tipo");
+      const imageOptions = document.getElementById("imageOptions");
+
+      // Agregar un evento de cambio al elemento select
+      selectTipo.addEventListener("change", function () {
+        // Obtener el valor seleccionado
+        const selectedValue = selectTipo.value;
+
+        // Mostrar u ocultar el div de opciones de imagen según el tipo seleccionado
+        if (selectedValue === "image") {
+          imageOptions.style.display = "block";
+        } else {
+          imageOptions.style.display = "none";
+        }
+      });
+
       //proceso para la creación del prompt
       document
         .getElementById("promptForm")
@@ -90,6 +133,13 @@
           const name = document.getElementById("nombre").value;
           const descripcion = document.getElementById("descripcion").value;
           const tipo = document.getElementById("tipo").value;
+          var cantidad= null;
+          var tamanno= null;
+          if (tipo === "image") {
+            cantidad = document.getElementById("cantidadImagenes").value;
+            tamanno = document.getElementById("tamaño").value;
+          }
+
           const tag1 = document.getElementById("tag1").value;
           const tag2 = document.getElementById("tag2").value;
           const tag3 = document.getElementById("tag3").value;
@@ -118,14 +168,21 @@
             }
             tagsConcatenados += tag4;
           }
-
+          // valida si se eligieron los valores de tamaño y size para insertarlos al objeto
           const promptData = {
             name: name,
             type: tipo,
+            n: cantidad,
+            size: tamanno,
             tags: tagsConcatenados,
             input: descripcion,
             user: sessionStorage.getItem("id"),
           };
+
+          // if (tipo === "image") {
+          //   promptData.n = cantidad;
+          //   promptData.size = tamanno;
+          // }
 
           const ajaxRequest = new XMLHttpRequest();
           ajaxRequest.addEventListener("load", completedPost);
@@ -148,6 +205,7 @@
           alert("Prompt creado con exito!");
           getPrompts();
           document.getElementById("promptForm").reset();
+          imageOptions.style.display = "none";
         }
       }
 
@@ -166,7 +224,7 @@
           "GET",
           `http://localhost:3001/api/handle/prompts?user=${sessionStorage.getItem(
             "id"
-          )}`
+          )}`    //&type=completion       si quiero buscar también por type = ?    (modificamos controller)
         );
         ajaxRequest.setRequestHeader(
           "auth-token",
@@ -226,6 +284,8 @@
           typeSelect.appendChild(completion);
 
           typeSelect.value = prompt.type;
+          //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
+          typeSelect.disabled = true;
           typeCell.appendChild(typeSelect);
           row.appendChild(typeCell);
 
