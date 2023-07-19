@@ -11,11 +11,7 @@
 
   <body>
     <div class="BTN">
-      <button
-        onclick="window.location.href = 'index.html';"
-        class="btn-cerrar"
-        id="cerrarSesion"
-      >
+      <button onclick="cerrarSesion()" class="btn-cerrar" id="cerrarSesion">
         Cerrar sesión
       </button>
     </div>
@@ -83,7 +79,7 @@
 
     <div class="table-container">
       <h1 id="user"></h1>
-      <table id="promptsTable">
+      <table id="promptsTable1">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -96,11 +92,37 @@
         <tbody>
           <!-- Aquí se agregarán las filas con información de los prompts -->
         </tbody>
+        <br />
+        <br />
+      </table>
+      <table id="promptsTable2" style="margin-top: 3rem">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Input</th>
+            <th>Etiquetas</th>
+            <th>Cantidad</th>
+            <th>Tamaño</th>
+            <th>Tipo</th>
+            <th>Editar/Eliminar/Ejecutar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán las filas con información de los prompts -->
+        </tbody>
       </table>
     </div>
-    <br />
-    <br />
+    <!-- modal para ver la respuesta del api: -->
+    <div id="myModal" class="modal">
+      <div class="modal-content" id="modalContent">
+        <!-- Aquí se mostrará el contenido dinámico -->
+      </div>
+    </div>
     <script>
+      function cerrarSesion() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      }
       const usuario = sessionStorage.getItem("name");
       const element = document.getElementById("user");
       element.textContent = "Prompts de " + usuario;
@@ -133,8 +155,8 @@
           const name = document.getElementById("nombre").value;
           const descripcion = document.getElementById("descripcion").value;
           const tipo = document.getElementById("tipo").value;
-          var cantidad= null;
-          var tamanno= null;
+          var cantidad = "1"; // se queman por si se cambia el tipo de prompt que tengan valores válidos
+          var tamanno = "256x256";
           if (tipo === "image") {
             cantidad = document.getElementById("cantidadImagenes").value;
             tamanno = document.getElementById("tamaño").value;
@@ -179,11 +201,6 @@
             user: sessionStorage.getItem("id"),
           };
 
-          // if (tipo === "image") {
-          //   promptData.n = cantidad;
-          //   promptData.size = tamanno;
-          // }
-
           const ajaxRequest = new XMLHttpRequest();
           ajaxRequest.addEventListener("load", completedPost);
           ajaxRequest.addEventListener("error", errorPost);
@@ -224,7 +241,7 @@
           "GET",
           `http://localhost:3001/api/handle/prompts?user=${sessionStorage.getItem(
             "id"
-          )}`    //&type=completion       si quiero buscar también por type = ?    (modificamos controller)
+          )}` //&type=completion       si quiero buscar también por type = ?    (modificamos controller)
         );
         ajaxRequest.setRequestHeader(
           "auth-token",
@@ -237,95 +254,247 @@
         const response = event.target.responseText;
         const prompts = JSON.parse(response);
 
-        const tableBody = document.querySelector("#promptsTable tbody");
-        tableBody.innerHTML = "";
+        const tableBody1 = document.querySelector("#promptsTable1 tbody");
+        tableBody1.innerHTML = "";
+
+        const tableBody2 = document.querySelector("#promptsTable2 tbody");
+        tableBody2.innerHTML = "";
         // const selectCurso = document.querySelector("#selectCurso");
         // selectCurso.innerHTML = "";
 
         prompts.forEach((prompt) => {
-          const row = document.createElement("tr");
+          if (prompt.type != "image") {
+            const row = document.createElement("tr");
 
-          const nameCell = document.createElement("td");
-          const nameInput = document.createElement("input");
-          nameInput.type = "text";
-          nameInput.value = prompt.name;
-          nameInput.className = "input";
-          nameCell.appendChild(nameInput);
-          row.appendChild(nameCell);
+            const nameCell = document.createElement("td");
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.value = prompt.name;
+            nameInput.className = "input";
+            nameCell.appendChild(nameInput);
+            row.appendChild(nameCell);
 
-          const last_nameCell = document.createElement("td");
-          const inputInput = document.createElement("textarea");
-          inputInput.value = prompt.input;
-          inputInput.className = "input";
-          last_nameCell.appendChild(inputInput);
-          row.appendChild(last_nameCell);
+            const last_nameCell = document.createElement("td");
+            const inputInput = document.createElement("textarea");
+            inputInput.value = prompt.input;
+            inputInput.className = "input";
+            last_nameCell.appendChild(inputInput);
+            row.appendChild(last_nameCell);
 
-          const tagsCell = document.createElement("td");
-          const tagsInput = document.createElement("input");
-          tagsInput.type = "text";
-          tagsInput.value = prompt.tags;
-          tagsInput.className = "input";
-          tagsCell.appendChild(tagsInput);
-          row.appendChild(tagsCell);
+            const tagsCell = document.createElement("td");
+            const tagsInput = document.createElement("input");
+            tagsInput.type = "text";
+            tagsInput.value = prompt.tags;
+            tagsInput.className = "input";
+            tagsCell.appendChild(tagsInput);
+            row.appendChild(tagsCell);
 
-          const typeCell = document.createElement("td");
-          const typeSelect = document.createElement("select");
-          const edit = document.createElement("option");
-          edit.value = "edit";
-          edit.textContent = "edit";
-          typeSelect.appendChild(edit);
-          const image = document.createElement("option");
-          image.value = "image";
-          image.textContent = "image";
-          typeSelect.appendChild(image);
-          const completion = document.createElement("option");
-          completion.value = "completion";
-          completion.textContent = "completion";
-          typeSelect.appendChild(completion);
+            const typeCell = document.createElement("td");
+            const typeSelect = document.createElement("select");
+            const edit = document.createElement("option");
+            edit.value = "edit";
+            edit.textContent = "edit";
+            typeSelect.appendChild(edit);
+            const image = document.createElement("option");
+            image.value = "image";
+            image.textContent = "image";
+            typeSelect.appendChild(image);
+            const completion = document.createElement("option");
+            completion.value = "completion";
+            completion.textContent = "completion";
+            typeSelect.appendChild(completion);
 
-          typeSelect.value = prompt.type;
-          //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
-          typeSelect.disabled = true;
-          typeCell.appendChild(typeSelect);
-          row.appendChild(typeCell);
+            typeSelect.value = prompt.type;
+            //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
+            //typeSelect.disabled = true;
+            typeCell.appendChild(typeSelect);
+            row.appendChild(typeCell);
 
-          const editDeleteCell = document.createElement("td");
-          const editButton = document.createElement("button");
-          editButton.textContent = "Editar";
-          editButton.className = "editar-btn";
-          editButton.addEventListener("click", () => {
-            // funcion editar:
-            editPrompt(
-              prompt._id,
-              nameInput.value,
-              inputInput.value,
-              tagsInput.value,
-              typeSelect.value
-            );
-          });
-          editDeleteCell.appendChild(editButton);
+            const editDeleteCell = document.createElement("td");
+            const editButton = document.createElement("button");
+            editButton.textContent = "Editar";
+            editButton.className = "editar-btn";
+            editButton.addEventListener("click", () => {
+              // funcion editar:
+              editPrompt(
+                prompt._id,
+                nameInput.value,
+                inputInput.value,
+                tagsInput.value,
+                null,
+                null,
+                typeSelect.value
+              );
+            });
+            editDeleteCell.appendChild(editButton);
 
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Eliminar";
-          deleteButton.className = "eliminar-btn";
-          deleteButton.addEventListener("click", () => {
-            //funcion para eliminar
-            deletePrompt(prompt._id);
-          });
-          editDeleteCell.appendChild(deleteButton);
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Eliminar";
+            deleteButton.className = "eliminar-btn";
+            deleteButton.addEventListener("click", () => {
+              //funcion para eliminar
+              deletePrompt(prompt._id);
+            });
+            editDeleteCell.appendChild(deleteButton);
 
-          const executeButton = document.createElement("button");
-          executeButton.textContent = "Ejecutar";
-          executeButton.className = "execute-btn";
-          executeButton.addEventListener("click", () => {
-            //funcion para ejecutar api de OpenAI
-            executePrompt(prompt._id);
-          });
-          editDeleteCell.appendChild(executeButton);
+            const executeButton = document.createElement("button");
+            executeButton.textContent = "Ejecutar";
+            executeButton.className = "execute-btn";
+            executeButton.addEventListener("click", () => {
+              //funcion para ejecutar api de OpenAI
+              executePrompt(prompt._id);
+            });
+            editDeleteCell.appendChild(executeButton);
 
-          row.appendChild(editDeleteCell);
+            row.appendChild(editDeleteCell);
 
-          tableBody.appendChild(row);
+            const verButton = document.createElement("button");
+            verButton.textContent = "Ver";
+            verButton.className = "ver-btn";
+            verButton.addEventListener("click", () => {
+              verPrompt(prompt.response, prompt.type);
+            });
+            editDeleteCell.appendChild(verButton);
+
+            row.appendChild(editDeleteCell);
+            tableBody1.appendChild(row);
+
+            // Acá empieza 2 Tabla de imagenes
+          } else {
+            const row = document.createElement("tr");
+
+            const nameCell = document.createElement("td");
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.value = prompt.name;
+            nameInput.className = "input";
+            nameCell.appendChild(nameInput);
+            row.appendChild(nameCell);
+
+            const last_nameCell = document.createElement("td");
+            const inputInput = document.createElement("textarea");
+            inputInput.value = prompt.input;
+            inputInput.className = "input";
+            last_nameCell.appendChild(inputInput);
+            row.appendChild(last_nameCell);
+
+            const tagsCell = document.createElement("td");
+            const tagsInput = document.createElement("input");
+            tagsInput.type = "text";
+            tagsInput.value = prompt.tags;
+            tagsInput.className = "input";
+            tagsCell.appendChild(tagsInput);
+            row.appendChild(tagsCell);
+
+            const nCell = document.createElement("td");
+            const nSelect = document.createElement("select");
+            for (var i = 1; i <= 10; i++) {
+              var option = document.createElement("option");
+              option.value = i; //ojo aquí con el tipado
+              option.textContent = i; //ojo aquí con el tipado textContent
+              nSelect.appendChild(option);
+            }
+
+            nSelect.value = prompt.n;
+            //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
+            //nSelect.disabled = true;
+            nCell.appendChild(nSelect);
+            row.appendChild(nCell);
+
+            const sizeCell = document.createElement("td");
+            const sizeSelect = document.createElement("select");
+
+            const small = document.createElement("option");
+            small.value = "256x256";
+            small.textContent = "256x256";
+            sizeSelect.appendChild(small);
+            const medium = document.createElement("option");
+            medium.value = "512x512";
+            medium.textContent = "512x512";
+            sizeSelect.appendChild(medium);
+            const large = document.createElement("option");
+            large.value = "1024x1024";
+            large.textContent = "1024x1024";
+            sizeSelect.appendChild(large);
+
+            sizeSelect.value = prompt.size;
+            //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
+            //sizeSelect.disabled = true;
+            sizeCell.appendChild(sizeSelect);
+            row.appendChild(sizeCell);
+
+            const typeCell = document.createElement("td");
+            const typeSelect = document.createElement("select");
+            const edit = document.createElement("option");
+            edit.value = "edit";
+            edit.textContent = "edit";
+            typeSelect.appendChild(edit);
+            const image = document.createElement("option");
+            image.value = "image";
+            image.textContent = "image";
+            typeSelect.appendChild(image);
+            const completion = document.createElement("option");
+            completion.value = "completion";
+            completion.textContent = "completion";
+            typeSelect.appendChild(completion);
+
+            typeSelect.value = prompt.type;
+            //deshabilito por que al modificar los tipo image no se podría seleccionar cantidad y tamaño
+            //typeSelect.disabled = true;
+            typeCell.appendChild(typeSelect);
+            row.appendChild(typeCell);
+
+            const editDeleteCell = document.createElement("td");
+            const editButton = document.createElement("button");
+            editButton.textContent = "Editar";
+            editButton.className = "editar-btn";
+            editButton.addEventListener("click", () => {
+              // funcion editar: promptId, name, input, tags,n, size, type
+              editPrompt(
+                prompt._id,
+                nameInput.value,
+                inputInput.value,
+                tagsInput.value,
+                nSelect.value,
+                sizeSelect.value,
+                typeSelect.value
+              );
+            });
+            editDeleteCell.appendChild(editButton);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Eliminar";
+            deleteButton.className = "eliminar-btn";
+            deleteButton.addEventListener("click", () => {
+              //funcion para eliminar
+              deletePrompt(prompt._id);
+            });
+            editDeleteCell.appendChild(deleteButton);
+
+            const executeButton = document.createElement("button");
+            executeButton.textContent = "Ejecutar";
+            executeButton.className = "execute-btn";
+            executeButton.addEventListener("click", () => {
+              //funcion para ejecutar api de OpenAI
+              executePrompt(prompt._id);
+            });
+            editDeleteCell.appendChild(executeButton);
+
+            row.appendChild(editDeleteCell);
+
+            tableBody2.appendChild(row);
+
+            const verButton = document.createElement("button");
+            verButton.textContent = "Ver";
+            verButton.className = "ver-btn";
+            verButton.addEventListener("click", () => {
+              verPrompt(prompt.response, prompt.type);
+            });
+            editDeleteCell.appendChild(verButton);
+
+            row.appendChild(editDeleteCell);
+            tableBody2.appendChild(row);
+          }
         });
       }
 
@@ -336,12 +505,14 @@
       getPrompts();
 
       //editar prompt
-      function editPrompt(promptId, name, input, tags, type) {
+      function editPrompt(promptId, name, input, tags, n, size, type) {
         // Crear un objeto con los datos actualizados
         const updatedPrompt = {
           name: name,
           input: input,
           tags: tags,
+          n: n,
+          size: size,
           type: type,
         };
 
@@ -368,6 +539,32 @@
       function editError() {
         console.error("Error al editar el Prompt");
       }
+
+      //función para ver la respuesta del prompt
+      function verPrompt(response, type) {
+        if (response != undefined) {
+          var modal = document.getElementById("myModal");
+          var modalContent = document.getElementById("modalContent");
+          if (type === "edit" || type === "completion") {
+            modalContent.textContent = response;
+          } else if (type === "image") {
+            modalContent.innerHTML =
+              "<img src='" + response + "' alt='Imagen'>";
+          }
+          // Mostrar el modal
+          modal.style.display = "block";
+        } else {
+          alert("Prompt no ha sido ejecutado!!!");
+        }
+      }
+
+      // Cierra el modal al hacer clic fuera de él
+      window.addEventListener("click", function (event) {
+        var modal = document.getElementById("myModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      });
 
       //eliminar prompt:
       function deletePrompt(promptId) {

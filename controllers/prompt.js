@@ -49,9 +49,8 @@ router.post("/prompts", async (req, res) => {
   }
 });
 
-// obtener info de prompts
+// obtener info de prompts por usuario
 router.get("/prompts", (req, res) => {
-  // if an specific prompt is required
   if (req.query && req.query.user) {
     Prompt.find({ user: req.query.user }) // Filtrar por el usuario específico
       .then((prompts) => {
@@ -75,37 +74,6 @@ router.get("/prompts", (req, res) => {
   }
 });
 
-// //opcional para extraer con usuario y typo:
-
-// router.get("/prompts", (req, res) => {
-//   const query = {};
-
-//   // Verificar si se especifica un usuario en la consulta
-//   if (req.query.user) {
-//     query.user = req.query.user;
-//   }
-
-//   // Verificar si se especifica un tipo en la consulta
-//   if (req.query.type) {
-//     query.type = req.query.type;
-//   }
-
-//   // Filtrar solo los tipos "edit" y "image"  ************ extra
-//   query.type = { $in: ["edit", "image"] };
-
-//   // Excluir el tipo "completion"    ***************
-//   query.type = { $ne: "completion" };
-
-//   Prompt.find(query) // Filtrar por usuario y/o tipo según corresponda
-//     .then((prompts) => {
-//       res.json(prompts);
-//     })
-//     .catch((err) => {
-//       res.status(404);
-//       console.log("Error al consultar los prompts", err);
-//       res.json({ error: "Los prompts no existen" });
-//     });
-// });
 
 //actualizar prompt
 router.patch("/prompts", (req, res) => {
@@ -123,6 +91,8 @@ router.patch("/prompts", (req, res) => {
         // update the prompt object (patch) || sirve para que le de el mismo valor si el nuevo viene vacío
         prompt.name = req.body.name || prompt.name;
         prompt.type = req.body.type || prompt.type;
+        prompt.n = req.body.n || prompt.n;
+        prompt.size = req.body.size || prompt.size;
         prompt.tags = req.body.tags || prompt.tags;
         prompt.input = req.body.input || prompt.input;
 
