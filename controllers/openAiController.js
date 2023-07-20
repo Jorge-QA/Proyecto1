@@ -55,7 +55,8 @@ router.post("/edit", async (req, res) => {
     // Realizar la solicitud de edición (edit)
     const response = await openai.createEdit({
       model: "text-davinci-edit-001",
-      instruction: input,
+      instruction: "Corrije los errores gramáticos y de puntuación",//
+      input: input
     });
 
     // Enviar la respuesta del API de OpenAI al cliente
