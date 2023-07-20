@@ -82,7 +82,7 @@ router.post("/image", async (req, res) => {
   const openai = new OpenAIApi(configuration);
   const response = await openai.createImage({
     prompt: req.body.input,
-    n: req.body.n,
+    n: parseInt(req.body.n),
     size: req.body.size,
   });
 

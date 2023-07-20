@@ -483,7 +483,14 @@
             executeButton.className = "execute-btn";
             executeButton.addEventListener("click", () => {
               //funcion para ejecutar api de OpenAI
-              executePrompt(prompt._id);
+              //executePrompt(prompt._id);
+              executeImagePrompt(
+                prompt._id,
+                prompt.type,
+                prompt.input,
+                prompt.n,
+                prompt.size
+              );
             });
             editDeleteCell.appendChild(executeButton);
 
@@ -642,6 +649,60 @@
       function executeError() {
         console.error("Error al ejecutar el prompt");
         alert("Error al ejecutar el prompt");
+      }
+
+      //Ejecutar prompt de imagen:
+      function executeImagePrompt(id, type, input, n, size) {
+        const Data = {
+          input: input,
+          n: n,
+          size: size,
+        };
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", executeImageSuccess);
+        ajaxRequest.addEventListener("error", ImageCreationError);
+        ajaxRequest.open("POST", `http://localhost:3001/api/openAi/${type}`);
+        ajaxRequest.setRequestHeader("Content-Type", "application/json");
+        ajaxRequest.setRequestHeader(
+          "auth-token",
+          sessionStorage.getItem("token")
+        );
+        ajaxRequest.send(JSON.stringify(Data));
+      }
+
+      function executeImageSuccess(event) {
+        const response = event.target.responseText;
+        const imageData = JSON.parse(response);
+
+        // Verificar si hay una respuesta en el objeto "data" y si contiene imágenes
+        if (imageData.data && imageData.data.length > 0) {
+          const images = imageData.data;
+
+          // Mostrar o procesar cada imagen recibida
+          images.forEach((imageData, index) => {
+            const imageURL = imageData.url;
+            console.log(
+              "URL de la imagen generada " + (index + 1) + ":",
+              imageURL
+            );
+            alert(imageURL);
+
+            // Aquí puedes utilizar la URL de la imagen para mostrarla en una etiqueta <img> o realizar otras operaciones con ella
+            // Por ejemplo:
+            // const imageElement = document.createElement("img");
+            // imageElement.src = imageURL;
+            // document.body.appendChild(imageElement);
+          });
+        } else {
+          // En caso de que no haya imágenes en "data"
+          alert("No se encontraron imágenes generadas.");
+          console.log("No se encontraron imágenes generadas.");
+        }
+      }
+
+      function ImageCreationError() {
+        console.error("Error al generar la imagen.");
+        alert("Error al generar la imagen.");
       }
 
       //evita que el usuario retroceda o avance con el navegador entre páginas
