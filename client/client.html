@@ -564,7 +564,7 @@
         console.error("Error al editar el Prompt");
       }
 
-      //actualizar prompt
+      //actualizar response de prompt al ejecutarlo
       function updatePrompt(promptId, response) {
         // Crear un objeto con los datos actualizados
         const updatedPrompt = {
@@ -603,8 +603,13 @@
           if (type === "edit" || type === "completion") {
             modalContent.textContent = response;
           } else if (type === "image") {
-            modalContent.innerHTML =
-              "<img src='" + response + "' alt='Imagen'>";
+            let images = "";
+            response.forEach((imageData, index) => {
+              const imageURL = imageData.url;
+              images +=
+                "<img src='" + imageURL + "' alt='Imagen " + (index + 1) + "'>";
+            });
+            modalContent.innerHTML = images;
           }
           // Mostrar el modal
           modal.style.display = "block";
@@ -674,7 +679,7 @@
         if (respuesta.choices.length > 0) {
           const primeraRespuesta = respuesta.choices[0];
           const textoRespuesta = primeraRespuesta.text;
-          updatePrompt(id,textoRespuesta)
+          updatePrompt(id, textoRespuesta);
           // Mostrar la respuesta en un alert
           alert(textoRespuesta);
 
