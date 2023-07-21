@@ -95,6 +95,7 @@ router.patch("/prompts", (req, res) => {
         prompt.size = req.body.size || prompt.size;
         prompt.tags = req.body.tags || prompt.tags;
         prompt.input = req.body.input || prompt.input;
+        prompt.response = req.body.response || prompt.response;
 
         prompt
           .save()

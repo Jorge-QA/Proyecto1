@@ -12,7 +12,7 @@ const prompt = new promptSchema({
     type: mongoose.ObjectId,
     ref: "User",required: true
   },
-  response:{ type: String } //En caso de haber utilizado el api de openai
+  response: promptSchema.Types.Mixed //En caso de haber utilizado el api de openai
 });
 
 module.exports = mongoose.model("Prompt", prompt);

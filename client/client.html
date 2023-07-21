@@ -519,7 +519,16 @@
       getPrompts();
 
       //editar prompt
-      function editPrompt(promptId, name, input, tags, n, size, type) {
+      function editPrompt(
+        promptId,
+        name,
+        input,
+        tags,
+        n,
+        size,
+        type,
+        response
+      ) {
         // Crear un objeto con los datos actualizados
         const updatedPrompt = {
           name: name,
@@ -528,6 +537,7 @@
           n: n,
           size: size,
           type: type,
+          response: response,
         };
 
         const ajaxRequest = new XMLHttpRequest();
@@ -552,6 +562,37 @@
 
       function editError() {
         console.error("Error al editar el Prompt");
+      }
+
+      //actualizar prompt
+      function updatePrompt(promptId, response) {
+        // Crear un objeto con los datos actualizados
+        const updatedPrompt = {
+          response: response,
+        };
+
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", updateCompleted);
+        ajaxRequest.addEventListener("error", updateError);
+        ajaxRequest.open(
+          "PATCH",
+          `http://localhost:3001/api/handle/prompts?id=${promptId}`
+        );
+        ajaxRequest.setRequestHeader(
+          "auth-token",
+          sessionStorage.getItem("token")
+        );
+        ajaxRequest.setRequestHeader("Content-Type", "application/json");
+        ajaxRequest.send(JSON.stringify(updatedPrompt));
+      }
+
+      function updateCompleted(event) {
+        alert("Prompt actualizado con éxito!");
+        getPrompts();
+      }
+
+      function updateError() {
+        console.error("Error al actualizar el Prompt");
       }
 
       //función para ver la respuesta del prompt
@@ -614,7 +655,7 @@
           size: size,
         };
         const ajaxRequest = new XMLHttpRequest();
-        ajaxRequest.addEventListener("load", executeCompleted);
+        ajaxRequest.addEventListener("load", executeCompleted.bind(null, id));
         ajaxRequest.addEventListener("error", executeError);
         ajaxRequest.open("POST", `http://localhost:3001/api/openAi/${type}`);
         ajaxRequest.setRequestHeader("Content-Type", "application/json");
@@ -625,7 +666,7 @@
         ajaxRequest.send(JSON.stringify(Data));
       }
 
-      function executeCompleted(event) {
+      function executeCompleted(id, event) {
         const response = event.target.responseText;
         const respuesta = JSON.parse(response);
 
@@ -633,7 +674,7 @@
         if (respuesta.choices.length > 0) {
           const primeraRespuesta = respuesta.choices[0];
           const textoRespuesta = primeraRespuesta.text;
-
+          updatePrompt(id,textoRespuesta)
           // Mostrar la respuesta en un alert
           alert(textoRespuesta);
 
@@ -659,7 +700,10 @@
           size: size,
         };
         const ajaxRequest = new XMLHttpRequest();
-        ajaxRequest.addEventListener("load", executeImageSuccess);
+        ajaxRequest.addEventListener(
+          "load",
+          executeImageSuccess.bind(null, id)
+        );
         ajaxRequest.addEventListener("error", ImageCreationError);
         ajaxRequest.open("POST", `http://localhost:3001/api/openAi/${type}`);
         ajaxRequest.setRequestHeader("Content-Type", "application/json");
@@ -670,13 +714,16 @@
         ajaxRequest.send(JSON.stringify(Data));
       }
 
-      function executeImageSuccess(event) {
+      function executeImageSuccess(id, event) {
         const response = event.target.responseText;
         const imageData = JSON.parse(response);
 
         // Verificar si hay una respuesta en el objeto "data" y si contiene imágenes
         if (imageData.data && imageData.data.length > 0) {
           const images = imageData.data;
+          console.log(id);
+          console.log(images);
+          updatePrompt(id, images);
 
           // Mostrar o procesar cada imagen recibida
           images.forEach((imageData, index) => {
@@ -685,13 +732,8 @@
               "URL de la imagen generada " + (index + 1) + ":",
               imageURL
             );
-            alert(imageURL);
-
             // Aquí puedes utilizar la URL de la imagen para mostrarla en una etiqueta <img> o realizar otras operaciones con ella
             // Por ejemplo:
-            // const imageElement = document.createElement("img");
-            // imageElement.src = imageURL;
-            // document.body.appendChild(imageElement);
           });
         } else {
           // En caso de que no haya imágenes en "data"
