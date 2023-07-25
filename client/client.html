@@ -118,6 +118,11 @@
         <!-- Aquí se mostrará el contenido dinámico -->
       </div>
     </div>
+    <!-- div para mostrar el spinner -->
+    <div id="spinner" class="spinner"></div>
+    <!--div para la capa transparente -->
+    <div id="overlay" class="overlay"></div>
+
     <script>
       function cerrarSesion() {
         sessionStorage.clear();
@@ -167,36 +172,32 @@
           const tag3 = document.getElementById("tag3").value;
           const tag4 = document.getElementById("tag4").value;
 
-          //Validación de contenido de las etiquetas:
-          let tagsConcatenados = "";
+          // Validación de contenido de las etiquetas:
+          let tagsList = [];
+
           if (tag1) {
-            tagsConcatenados += tag1;
+            tagsList.push(tag1);
           }
+
           if (tag2) {
-            if (tagsConcatenados !== "") {
-              tagsConcatenados += ",";
-            }
-            tagsConcatenados += tag2;
+            tagsList.push(tag2);
           }
+
           if (tag3) {
-            if (tagsConcatenados !== "") {
-              tagsConcatenados += ",";
-            }
-            tagsConcatenados += tag3;
+            tagsList.push(tag3);
           }
+
           if (tag4) {
-            if (tagsConcatenados !== "") {
-              tagsConcatenados += ",";
-            }
-            tagsConcatenados += tag4;
+            tagsList.push(tag4);
           }
+
           // valida si se eligieron los valores de tamaño y size para insertarlos al objeto
           const promptData = {
             name: name,
             type: tipo,
             n: cantidad,
             size: tamanno,
-            tags: tagsConcatenados,
+            tags: tagsList,
             input: descripcion,
             user: sessionStorage.getItem("id"),
           };
@@ -321,8 +322,8 @@
                 nameInput.value,
                 inputInput.value,
                 tagsInput.value,
-                null, //
-                null,
+                prompt.n, // por que en la tabla no hay size ni n
+                prompt.size,
                 typeSelect.value
               );
             });
@@ -529,11 +530,13 @@
         type,
         response
       ) {
+        // creo el arreglo de tags separados por la ","
+        const tagsList = tags.split(",");
         // Crear un objeto con los datos actualizados
         const updatedPrompt = {
           name: name,
           input: input,
-          tags: tags,
+          tags: tagsList,
           n: n,
           size: size,
           type: type,
@@ -654,6 +657,8 @@
 
       //Ejecutar prompt:
       function executePrompt(id, type, input, n, size) {
+        // Mostrar el spinner antes de enviar la solicitud
+        showSpinner();
         const Data = {
           input: input,
           n: n,
@@ -662,6 +667,7 @@
         const ajaxRequest = new XMLHttpRequest();
         ajaxRequest.addEventListener("load", executeCompleted.bind(null, id));
         ajaxRequest.addEventListener("error", executeError);
+        ajaxRequest.addEventListener("loadend", hideSpinner);
         ajaxRequest.open("POST", `http://localhost:3001/api/openAi/${type}`);
         ajaxRequest.setRequestHeader("Content-Type", "application/json");
         ajaxRequest.setRequestHeader(
@@ -669,6 +675,18 @@
           sessionStorage.getItem("token")
         );
         ajaxRequest.send(JSON.stringify(Data));
+      }
+
+      // Mostrar el spinner y la capa transparente
+      function showSpinner() {
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+      }
+
+      // Ocultar el spinner
+      function hideSpinner() {
+        document.getElementById("spinner").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
       }
 
       function executeCompleted(id, event) {
@@ -683,8 +701,6 @@
           // Mostrar la respuesta en un alert
           alert(textoRespuesta);
 
-          // Mostrar la respuesta en la consola
-          console.log(textoRespuesta);
         } else {
           // En caso de que no haya respuestas en "choices"
           alert("No se encontró ninguna respuesta.");
@@ -699,6 +715,7 @@
 
       //Ejecutar prompt de imagen:
       function executeImagePrompt(id, type, input, n, size) {
+        showSpinner();
         const Data = {
           input: input,
           n: n,
@@ -710,6 +727,7 @@
           executeImageSuccess.bind(null, id)
         );
         ajaxRequest.addEventListener("error", ImageCreationError);
+        ajaxRequest.addEventListener("loadend", hideSpinner);
         ajaxRequest.open("POST", `http://localhost:3001/api/openAi/${type}`);
         ajaxRequest.setRequestHeader("Content-Type", "application/json");
         ajaxRequest.setRequestHeader(
@@ -726,8 +744,6 @@
         // Verificar si hay una respuesta en el objeto "data" y si contiene imágenes
         if (imageData.data && imageData.data.length > 0) {
           const images = imageData.data;
-          console.log(id);
-          console.log(images);
           updatePrompt(id, images);
 
           // Mostrar o procesar cada imagen recibida
@@ -737,8 +753,6 @@
               "URL de la imagen generada " + (index + 1) + ":",
               imageURL
             );
-            // Aquí puedes utilizar la URL de la imagen para mostrarla en una etiqueta <img> o realizar otras operaciones con ella
-            // Por ejemplo:
           });
         } else {
           // En caso de que no haya imágenes en "data"

@@ -22,7 +22,7 @@ router.get("/users", (req, res) => {
         res.json({ error: "User doesnt exist" });
       });
   } else if (req.query.sort === "asc") {
-    User.find()
+    User.find({rol : "client"})// fitra solo clientes
       .then((users) => {
         users = users.sort((a, b) => a.first_name.localeCompare(b.first_name));
         res.json(users);

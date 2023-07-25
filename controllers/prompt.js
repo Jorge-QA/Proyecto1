@@ -11,7 +11,7 @@ const Joi = require("@hapi/joi");
 
 const schemaPrompt = Joi.object({
   name: Joi.string().min(2).max(255).required(),
-  type: Joi.string().min(2).max(255).required(), //edit/image
+  type: Joi.string().min(2).max(255).required(), //edit/image/completion
   tags: Joi.string().min(2).max(255).required(),
   input: Joi.string().min(2).max(255).required(),
   user: Joi.string().min(2).max(255),

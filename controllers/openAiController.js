@@ -25,7 +25,7 @@ router.post("/completion", async (req, res) => {
     const response = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: input,
-      max_tokens: 40,
+      max_tokens: 50,
     });
 
     // Enviar la respuesta del API de OpenAI al cliente
@@ -55,8 +55,9 @@ router.post("/edit", async (req, res) => {
     // Realizar la solicitud de edición (edit)
     const response = await openai.createEdit({
       model: "text-davinci-edit-001",
-      instruction: "Corrije los errores gramáticos y de puntuación",//
-      input: input
+      input: input,
+      instruction: "Fix the spelling mistakes and grammar"//
+      
     });
 
     // Enviar la respuesta del API de OpenAI al cliente
@@ -99,8 +100,3 @@ router.post("/image", async (req, res) => {
 
 module.exports = router;
 
-// module.exports = {
-//   executeCompletionsPrompt,
-//   executeEditPromt,
-//   createImage,
-// };

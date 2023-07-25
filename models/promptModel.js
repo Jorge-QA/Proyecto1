@@ -4,7 +4,7 @@ const promptSchema = mongoose.Schema;
 const prompt = new promptSchema({
   name: { type: String, required: true },
   type: { type: String, required: true },
-  tags: { type: String, required: true }, // plural
+  tags: { type: mongoose.Schema.Types.Mixed, required: true }, // acepta cualquier tipo de dato como una lista
   input: { type: String, required: true }, //
   n:{ type: String },   // para la cantidad de imagenes a generar
   size: { type: String }, // para el tamaño de la imagen a generar

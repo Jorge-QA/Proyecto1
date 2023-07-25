@@ -155,6 +155,27 @@ tr:hover {
   max-width: 30%; /* Cambiar el ancho máximo para que se adapte mejor */
 }
 
+/* Agrega estos estilos CSS para el spinner */
+.spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+  z-index: 9999;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Estilos de las imágenes dentro del modal */
 .modal-content img {
   width: 100%;
