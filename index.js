@@ -34,12 +34,14 @@ const openAi =require("./controllers/openAiController")
 app.use('/api/session',authRoutes)
 // se ejecuta la validación antes de pasar a las rutas...
 ////ruta de obtención y mandejo de información de usuarios
-app.use('/api/admin',validateToken, admin) //
+app.use('/api/admin', admin) //
 ////ruta de obtención y mandejo de información de prompts
-app.use('/api/handle',validateToken, prompts)
+app.use('/api/handle', prompts) //
 ////ruta de api OpenAi
 app.use('/api/openAi',validateToken, openAi)
 
 
 // iniciar server
-app.listen(3001, () => console.log(`Servidor corriendo en puerto: 3001!`))
+const server = app.listen(3001, () => console.log(`Servidor corriendo en puerto: 3001!`))
+
+module.exports = { app, server };
